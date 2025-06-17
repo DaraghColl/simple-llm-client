@@ -1,8 +1,11 @@
 <template>
-  <h1 class="text-3xl font-bold underline text-red-500">Hello world!</h1>
+  <div>
+    <h1 class="text-3xl font-bold text-red-500 underline">Hello world!</h1>
+  </div>
+
   <p>Welcome to your Electron application.</p>
 </template>
 
 <script setup>
-console.log('👋 This message is being logged by "App.vue", included via Vite');
+const x = 'hello';
 </script>
