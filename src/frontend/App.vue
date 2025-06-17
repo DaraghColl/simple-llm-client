@@ -1,11 +1,27 @@
 <template>
-  <div>
-    <h1 class="text-3xl font-bold text-red-500 underline">Hello world!</h1>
+  <div class="container mx-auto flex h-screen flex-col gap-4 p-4">
+    <div class="h-full grow overflow-scroll" id="output">
+      <div
+        v-if="outputValue === ''"
+        class="flex h-full items-center justify-center"
+      >
+        <LandingImage theme="dark" />
+      </div>
+    </div>
+    <SendMessage :loading="loading" :send-message="sendMessage" />
   </div>
-
-  <p>Welcome to your Electron application.</p>
 </template>
 
-<script setup>
-const x = 'hello';
+<script setup lang="ts">
+import { ref } from 'vue';
+import SendMessage from './components/SendMessage/SendMessage.vue';
+import LandingImage from './components/LandingImage/LandingImage.vue';
+
+const inputValue = ref<string>('');
+const outputValue = ref<string>('');
+const loading = ref<boolean>(false);
+
+const sendMessage = (inputText: String) => {
+  console.log('🚀 ~ sendMessage ~ inputText:', inputText);
+};
 </script>
