@@ -1,6 +1,7 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
+import { chat } from './backend/chat/chat';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -48,4 +49,13 @@ app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
+});
+
+ipcMain.handle('stream-chat', async (event, prompt: string) => {
+  const webContents = event.sender; // Get the webContents of the renderer that initiated the call
+
+  for await (const chunk of chat(prompt)) {
+    webContents.send('chat-stream-chunk', chunk); // Send each chunk back to the renderer
+  }
+  webContents.send('chat-stream-end'); // Signal the end of the stream
 });
