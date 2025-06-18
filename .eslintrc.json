@@ -1,16 +1,58 @@
+// .eslintrc.json
 {
+  "root": true,
   "env": {
     "browser": true,
-    "es6": true,
-    "node": true
+    "node": true,
+    "es2020": true
   },
   "extends": [
     "eslint:recommended",
-    "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:import/recommended",
-    "plugin:import/electron",
-    "plugin:import/typescript"
+    "plugin:vue/recommended",
+    "plugin:@typescript-eslint/recommended"
   ],
-  "parser": "@typescript-eslint/parser"
+  "parser": "vue-eslint-parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "parser": "@typescript-eslint/parser",
+    "project": "./tsconfig.json",
+    "extraFileExtensions": [".vue"]
+  },
+  "plugins": ["vue", "@typescript-eslint"],
+  "rules": {
+    "no-unused-vars": "off",
+    "no-undef": "off",
+
+    // @typescript-eslint rules
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { "argsIgnorePattern": "^_" }
+    ],
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-explicit-any": "error",
+
+    "vue/multi-word-component-names": "off",
+    "vue/no-unused-vars": "error",
+    "vue/html-indent": ["error", 2],
+    "vue/max-attributes-per-line": [
+      "warn",
+      {
+        "singleline": { "max": 3 },
+        "multiline": { "max": 1 }
+      }
+    ],
+    "vue/html-self-closing": [
+      "error",
+      {
+        "html": {
+          "void": "always",
+          "normal": "always",
+          "component": "always"
+        }
+      }
+    ]
+    // ... add/override other Vue rules as needed
+  },
+  "ignorePatterns": ["dist/", "node_modules/", "public/"]
 }

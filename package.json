@@ -37,12 +37,13 @@
     "electron": "36.4.0",
     "eslint": "^8.57.1",
     "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-vue": "^10.2.0",
     "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "^0.6.12",
     "prettier-plugin-vue": "^1.1.6",
     "ts-node": "^10.9.2",
     "typescript": "~4.5.4",
-    "vite": "^5.4.19"
+    "vite": "^6.3.5"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.10",
