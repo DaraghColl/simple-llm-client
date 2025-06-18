@@ -17,11 +17,10 @@ import { ref } from 'vue';
 import SendMessage from './components/SendMessage/SendMessage.vue';
 import LandingImage from './components/LandingImage/LandingImage.vue';
 
-const inputValue = ref<string>('');
 const outputValue = ref<string>('');
 const loading = ref<boolean>(false);
 
-const sendMessage = (inputText: String) => {
+const sendMessage = (inputText: string) => {
   console.log('🚀 ~ sendMessage ~ inputText:', inputText);
 };
 </script>
