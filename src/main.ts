@@ -1,19 +1,67 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, Tray, screen } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { chat } from './backend/chat/chat';
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
+const iconPath = path.join(__dirname, 'assets', 'IconTemplate.png');
+
+let tray: Tray | null = null;
+let mainWindow: BrowserWindow | null = null;
+let appQuitting = false;
+
+const createTray = () => {
+  tray = new Tray(iconPath);
+
+  if (!tray || !mainWindow) return;
+
+  tray.setToolTip('TrayAI');
+
+  tray.on('click', () => {
+    if (mainWindow.isVisible()) {
+      mainWindow.hide();
+    } else {
+      const trayBounds = tray.getBounds();
+      const windowBounds = mainWindow.getBounds();
+
+      const x = Math.round(
+        trayBounds.x + trayBounds.width / 2 - windowBounds.width / 2
+      );
+      let y = Math.round(trayBounds.y + trayBounds.height);
+
+      if (process.platform === 'win32') {
+        const screenHeight = screen.getPrimaryDisplay().bounds.height;
+        if (trayBounds.y < screenHeight / 2) {
+          // Tray at top
+          y = Math.round(trayBounds.y + trayBounds.height);
+        } else {
+          // Tray at bottom
+          y = Math.round(trayBounds.y - windowBounds.height);
+        }
+      }
+
+      mainWindow.setPosition(x, y, true);
+      mainWindow.show();
+      mainWindow.focus();
+    }
+  });
+};
+
 if (started) {
   app.quit();
 }
 
-const createWindow = () => {
-  const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+const createWindow = (): void => {
+  mainWindow = new BrowserWindow({
+    width: 500,
+    height: 500,
+    show: false,
+    frame: false,
+    fullscreenable: false,
+    resizable: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true,
     },
   });
 
@@ -25,37 +73,60 @@ const createWindow = () => {
     );
   }
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  mainWindow.on('blur', () => {
+    if (mainWindow && !mainWindow.webContents.isDevToolsOpened()) {
+      mainWindow.hide();
+    }
+  });
+
+  mainWindow.on('close', (event: Electron.Event) => {
+    if (appQuitting) {
+      mainWindow = null;
+    } else {
+      event.preventDefault();
+      mainWindow?.hide();
+    }
+  });
 };
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', () => {
+  createWindow();
+  createTray();
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
+  if (process.platform === 'darwin') {
+    app.dock.hide();
+  }
+});
+
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
+app.on('will-quit', () => {
+  if (tray) {
+    tray.destroy();
+    tray = null;
+  }
+});
+
 app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
 });
 
+ipcMain.on('quit-app', () => {
+  appQuitting = true;
+  app.quit();
+});
+
 ipcMain.handle('stream-chat', async (event, prompt: string) => {
-  const webContents = event.sender; // Get the webContents of the renderer that initiated the call
+  const webContents = event.sender;
 
   for await (const chunk of chat(prompt)) {
-    webContents.send('chat-stream-chunk', chunk); // Send each chunk back to the renderer
+    webContents.send('chat-stream-chunk', chunk);
   }
-  webContents.send('chat-stream-end'); // Signal the end of the stream
+  webContents.send('chat-stream-end');
 });
