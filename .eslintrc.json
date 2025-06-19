@@ -32,6 +32,7 @@
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-explicit-any": "error",
 
+    "vue/singleline-html-element-content-newline": "off",
     "vue/multi-word-component-names": "off",
     "vue/no-unused-vars": "error",
     "vue/html-indent": ["error", 2],
@@ -52,7 +53,6 @@
         }
       }
     ]
-    // ... add/override other Vue rules as needed
   },
   "ignorePatterns": ["dist/", "node_modules/", "public/"]
 }
