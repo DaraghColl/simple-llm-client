@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, Tray, screen } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { chat } from './backend/chat/chat';
+import { fetchModels } from './backend/llm-models/llm-models';
 
 const iconPath = path.join(__dirname, 'assets', 'IconTemplate.png');
 
@@ -31,10 +32,8 @@ const createTray = () => {
       if (process.platform === 'win32') {
         const screenHeight = screen.getPrimaryDisplay().bounds.height;
         if (trayBounds.y < screenHeight / 2) {
-          // Tray at top
           y = Math.round(trayBounds.y + trayBounds.height);
         } else {
-          // Tray at bottom
           y = Math.round(trayBounds.y - windowBounds.height);
         }
       }
@@ -117,8 +116,16 @@ app.on('activate', () => {
   }
 });
 
-ipcMain.on('quit-app', () => {
+// Corrected 'quit-app' handler
+ipcMain.handle('quit-app', () => {
   appQuitting = true;
+
+  if (tray) {
+    tray.destroy();
+    tray = null;
+    console.log('Tray destroyed.');
+  }
+
   app.quit();
 });
 
@@ -129,4 +136,8 @@ ipcMain.handle('stream-chat', async (event, prompt: string) => {
     webContents.send('chat-stream-chunk', chunk);
   }
   webContents.send('chat-stream-end');
+});
+
+ipcMain.handle('fetch-models', async () => {
+  return await fetchModels();
 });

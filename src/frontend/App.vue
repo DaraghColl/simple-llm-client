@@ -18,6 +18,7 @@
     :error-message="errorMessage"
     :close-error-message="closeErrorMessage"
   />
+  <Settings />
 </template>
 
 <script setup lang="ts">
@@ -26,6 +27,7 @@ import SendMessage from './components/SendMessage/SendMessage.vue';
 import LandingImage from './components/LandingImage/LandingImage.vue';
 import Conversation from './components/Conversation/Conversation.vue';
 import ErrorMessage from './components/ErrorMessage/ErrorMessage.vue';
+import Settings from './components/Settings/Settings.vue';
 
 const outputValue = ref<string>('');
 const loading = ref<boolean>(false);

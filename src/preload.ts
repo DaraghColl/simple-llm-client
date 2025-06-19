@@ -14,4 +14,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onChatStreamEnd: (callback: () => void) => {
     ipcRenderer.on('chat-stream-end', callback);
   },
+
+  fetchModels: () => ipcRenderer.invoke('fetch-models'),
+
+  appQuit: () => {
+    ipcRenderer.invoke('quit-app');
+  },
 });
