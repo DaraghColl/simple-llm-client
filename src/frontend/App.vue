@@ -1,6 +1,6 @@
 <template>
   <div class="container mx-auto flex h-screen flex-col gap-4 p-4">
-    <div id="output" class="h-full grow overflow-scroll">
+    <div id="output" class="relative h-full grow overflow-scroll">
       <div
         v-if="outputValue === ''"
         class="flex h-full items-center justify-center"
@@ -13,6 +13,11 @@
     </div>
     <SendMessage :loading="loading" :send-message="sendMessage" />
   </div>
+  <ErrorMessage
+    :show-error="showErrorMessage"
+    :error-message="errorMessage"
+    :close-error-message="closeErrorMessage"
+  />
 </template>
 
 <script setup lang="ts">
@@ -20,9 +25,20 @@ import { ref } from 'vue';
 import SendMessage from './components/SendMessage/SendMessage.vue';
 import LandingImage from './components/LandingImage/LandingImage.vue';
 import Conversation from './components/Conversation/Conversation.vue';
+import ErrorMessage from './components/ErrorMessage/ErrorMessage.vue';
 
 const outputValue = ref<string>('');
 const loading = ref<boolean>(false);
+const errorMessage = ref<string | null>(null);
+const showErrorMessage = ref<boolean>(false);
+const openErrorMessage = (message: string) => {
+  errorMessage.value = message;
+  showErrorMessage.value = true;
+};
+const closeErrorMessage = () => {
+  errorMessage.value = null;
+  showErrorMessage.value = false;
+};
 
 const sendMessage = async (inputText: string) => {
   console.log('🚀 ~ sendMessage ~ inputText:', inputText);
@@ -44,6 +60,7 @@ const sendMessage = async (inputText: string) => {
     await window.electronAPI.startChatStream(inputText);
   } catch (error) {
     console.error('Error starting chat stream:', error);
+    openErrorMessage('Error starting chat stream');
   }
 };
 </script>
