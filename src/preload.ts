@@ -2,8 +2,8 @@ import { contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('electronAPI', {
   // Function to initiate the chat stream from renderer
-  startChatStream: (prompt: string) =>
-    ipcRenderer.invoke('stream-chat', prompt),
+  startChatStream: (prompt: string, model: string) =>
+    ipcRenderer.invoke('stream-chat', prompt, model),
 
   // Function to register a listener for chat stream chunks
   onChatStreamChunk: (callback: (chunk: string) => void) => {

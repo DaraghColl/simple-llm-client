@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <p class="prose dark:prose-invert prose-sm" v-html="parsedMarkdown" />
+  <p class="prose dark:prose-invert prose-sm mt-5" v-html="parsedMarkdown" />
 </template>
 
 <script setup lang="ts">

@@ -22,17 +22,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import SendMessage from './components/SendMessage/SendMessage.vue';
 import LandingImage from './components/LandingImage/LandingImage.vue';
 import Conversation from './components/Conversation/Conversation.vue';
 import ErrorMessage from './components/ErrorMessage/ErrorMessage.vue';
 import Settings from './components/Settings/Settings.vue';
+import { getModel, setModel, setModelList } from './state/model';
 
 const outputValue = ref<string>('');
 const loading = ref<boolean>(false);
 const errorMessage = ref<string | null>(null);
 const showErrorMessage = ref<boolean>(false);
+
+onMounted(() => {
+  fetchModels();
+});
+
+const fetchModels = async () => {
+  const models = await window.electronAPI.fetchModels();
+  if (models) {
+    setModelList(models.models);
+    setModel(models.models[0].model);
+  }
+};
+
 const openErrorMessage = (message: string) => {
   errorMessage.value = message;
   showErrorMessage.value = true;
@@ -42,16 +56,22 @@ const closeErrorMessage = () => {
   showErrorMessage.value = false;
 };
 
-const sendMessage = async (inputText: string) => {
-  console.log('🚀 ~ sendMessage ~ inputText:', inputText);
-
+const sendMessage = async (
+  inputText: string,
+  onSuccessfullMessage: () => void
+) => {
   if (!inputText) return;
   loading.value = true;
 
+  if (outputValue.value) outputValue.value = '';
+
   window.electronAPI.onChatStreamChunk((chunk: string) => {
-    loading.value = false;
+    if (!outputValue.value) {
+      loading.value = false;
+      onSuccessfullMessage();
+    }
+
     outputValue.value += chunk;
-    console.log('🚀 ~ outputValue:', outputValue);
   });
 
   window.electronAPI.onChatStreamEnd(() => {
@@ -59,7 +79,7 @@ const sendMessage = async (inputText: string) => {
   });
 
   try {
-    await window.electronAPI.startChatStream(inputText);
+    await window.electronAPI.startChatStream(inputText, getModel());
   } catch (error) {
     console.error('Error starting chat stream:', error);
     openErrorMessage('Error starting chat stream');

@@ -129,10 +129,10 @@ ipcMain.handle('quit-app', () => {
   app.quit();
 });
 
-ipcMain.handle('stream-chat', async (event, prompt: string) => {
+ipcMain.handle('stream-chat', async (event, prompt: string, model: string) => {
   const webContents = event.sender;
 
-  for await (const chunk of chat(prompt)) {
+  for await (const chunk of chat(prompt, model)) {
     webContents.send('chat-stream-chunk', chunk);
   }
   webContents.send('chat-stream-end');
