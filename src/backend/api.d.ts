@@ -6,4 +6,5 @@ export interface IElectronAPI {
   onChatStreamEnd: (callback: () => void) => void;
   appQuit: () => void;
   fetchModels: () => Promise<ListResponse>;
+  checkIsOllamaRunning: () => Promise<boolean>;
 }

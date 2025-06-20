@@ -2,7 +2,7 @@ import { app, BrowserWindow, ipcMain, Tray, screen } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { chat } from '@backend/chat/chat';
-import { fetchModels } from './backend/llm-models/llm-models';
+import { checkIsOllamaRunning, fetchModels } from './backend/ollama/ollama';
 
 const iconPath = path.join(__dirname, 'assets', 'IconTemplate.png');
 
@@ -140,4 +140,8 @@ ipcMain.handle('stream-chat', async (event, prompt: string, model: string) => {
 
 ipcMain.handle('fetch-models', async () => {
   return await fetchModels();
+});
+
+ipcMain.handle('check-is-ollama-running', async () => {
+  return await checkIsOllamaRunning();
 });

@@ -1,5 +1,14 @@
 import ollama, { ListResponse } from 'ollama';
 
+const checkIsOllamaRunning = async () => {
+  try {
+    await ollama.list();
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
 const fetchModels = async (): Promise<ListResponse> => {
   try {
     const models = await ollama.list();
@@ -10,4 +19,4 @@ const fetchModels = async (): Promise<ListResponse> => {
   }
 };
 
-export { fetchModels };
+export { checkIsOllamaRunning, fetchModels };

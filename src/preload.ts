@@ -17,6 +17,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   fetchModels: () => ipcRenderer.invoke('fetch-models'),
 
+  checkIsOllamaRunning: () => ipcRenderer.invoke('check-is-ollama-running'),
+
   appQuit: () => {
     ipcRenderer.invoke('quit-app');
   },

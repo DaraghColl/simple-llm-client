@@ -11,6 +11,15 @@
         <Conversation :response="outputValue" />
       </div>
     </div>
+    <button
+      v-if="!isOllamaConnected"
+      class="flex cursor-pointer items-center gap-2 rounded-sm border-2 p-1"
+      style="width: fit-content"
+      @click="setUpOllama"
+    >
+      <Cable />
+      retry connection
+    </button>
     <SendMessage :loading="loading" :send-message="sendMessage" />
   </div>
   <ErrorMessage
@@ -28,16 +37,35 @@ import LandingImage from '@components/LandingImage/LandingImage.vue';
 import Conversation from '@components/Conversation/Conversation.vue';
 import ErrorMessage from '@components/ErrorMessage/ErrorMessage.vue';
 import Settings from '@components/Settings/Settings.vue';
+import { Cable } from 'lucide-vue-next';
 import { getModel, setModel, setModelList } from '@state/model';
 
 const outputValue = ref<string>('');
 const loading = ref<boolean>(false);
 const errorMessage = ref<string | null>(null);
 const showErrorMessage = ref<boolean>(false);
+const isOllamaConnected = ref<boolean>(true);
 
 onMounted(() => {
-  fetchModels();
+  setUpOllama();
 });
+
+const setUpOllama = async () => {
+  const isOllamaRunning = await window.electronAPI.checkIsOllamaRunning();
+
+  if (!isOllamaRunning) {
+    openErrorMessage(
+      'Ollama is not running. Please start ollama to use this app.'
+    );
+
+    isOllamaConnected.value = false;
+    return;
+  }
+
+  isOllamaConnected.value = true;
+
+  fetchModels();
+};
 
 const fetchModels = async () => {
   const models = await window.electronAPI.fetchModels();
