@@ -49,7 +49,7 @@
 <script setup lang="ts">
 import { Cog } from 'lucide-vue-next';
 import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
-import { getModel, getModelList, setModel } from '../../state/model';
+import { getModel, getModelList, setModel } from '@state/model';
 import { PowerCircle, Brain } from 'lucide-vue-next';
 
 const settingsMenuActive = ref<boolean>(false);
