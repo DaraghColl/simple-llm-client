@@ -1,7 +1,7 @@
 import { app, BrowserWindow, ipcMain, Tray, screen } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
-import { chat } from './backend/chat/chat';
+import { chat } from '@backend/chat/chat';
 import { fetchModels } from './backend/llm-models/llm-models';
 
 const iconPath = path.join(__dirname, 'assets', 'IconTemplate.png');

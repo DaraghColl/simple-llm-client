@@ -13,7 +13,9 @@
     "resolveJsonModule": true,
     "paths": {
       "@components/*": ["./src/frontend/components/*"],
-      "@state/*": ["./src/frontend/state/*"]
+      "@state/*": ["./src/frontend/components/*"],
+      "@frontend/*": ["./src/frontend/*"],
+      "@backend/*": ["./src/backend/*"]
     }
   }
 }
