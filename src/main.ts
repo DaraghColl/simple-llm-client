@@ -3,6 +3,7 @@ import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { chat } from '@backend/chat/chat';
 import { checkIsOllamaRunning, fetchModels } from './backend/ollama/ollama';
+import { Message } from 'ollama';
 
 const iconPath = path.join(__dirname, 'assets', 'IconTemplate.png');
 
@@ -129,14 +130,17 @@ ipcMain.handle('quit-app', () => {
   app.quit();
 });
 
-ipcMain.handle('stream-chat', async (event, prompt: string, model: string) => {
-  const webContents = event.sender;
+ipcMain.handle(
+  'stream-chat',
+  async (event, messages: Message[], model: string) => {
+    const webContents = event.sender;
 
-  for await (const chunk of chat(prompt, model)) {
-    webContents.send('chat-stream-chunk', chunk);
+    for await (const chunk of chat(messages, model)) {
+      webContents.send('chat-stream-chunk', chunk);
+    }
+    webContents.send('chat-stream-end');
   }
-  webContents.send('chat-stream-end');
-});
+);
 
 ipcMain.handle('fetch-models', async () => {
   return await fetchModels();

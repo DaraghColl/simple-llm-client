@@ -1,4 +1,4 @@
-import ollama from 'ollama';
+import ollama, { Message } from 'ollama';
 
 const MODEL = 'gemma3:1b';
 
@@ -14,23 +14,20 @@ const initializeOllamaModel = async (modelName: string): Promise<void> => {
 };
 
 const chat = async function* (
-  prompt: string,
+  messages: Message[] = [],
   modelName: string = MODEL
 ): AsyncGenerator<string> {
-  console.log(
-    `Starting chat stream for model: ${modelName} with prompt: "${prompt}"`
-  );
-
   await initializeOllamaModel(modelName);
 
   try {
     const responseStream = await ollama.chat({
       model: modelName,
-      messages: [{ role: 'user', content: prompt }],
+      messages: messages,
       stream: true,
     });
 
     for await (const chunk of responseStream) {
+      // console.log('🚀 ~ forawait ~ chunk:', chunk);
       if (chunk.message.content) {
         yield chunk.message.content;
       }

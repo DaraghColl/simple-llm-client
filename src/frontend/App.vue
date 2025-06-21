@@ -20,7 +20,12 @@
       <Cable />
       retry connection
     </button>
-    <SendMessage :loading="loading" :send-message="sendMessage" />
+    <SendMessage
+      :loading="loading"
+      :input-text="inputText"
+      :set-input-text="setInputText"
+      :send-message="sendMessage"
+    />
   </div>
   <ErrorMessage
     :show-error="showErrorMessage"
@@ -39,15 +44,40 @@ import ErrorMessage from '@components/ErrorMessage/ErrorMessage.vue';
 import Settings from '@components/Settings/Settings.vue';
 import { Cable } from 'lucide-vue-next';
 import { getModel, setModel, setModelList } from '@state/model';
+import { getMessages, setMessages } from '@state/chat';
+import { Message } from 'ollama';
 
+const inputText = ref<string>('');
 const outputValue = ref<string>('');
 const loading = ref<boolean>(false);
 const errorMessage = ref<string | null>(null);
 const showErrorMessage = ref<boolean>(false);
 const isOllamaConnected = ref<boolean>(true);
 
+const setInputText = (value: string) => {
+  inputText.value = value;
+};
+
 onMounted(() => {
   setUpOllama();
+
+  window.electronAPI.onChatStreamChunk((chunk: string) => {
+    if (!outputValue.value) {
+      loading.value = false;
+      setInputText('');
+    }
+    outputValue.value += chunk;
+  });
+
+  window.electronAPI.onChatStreamEnd(() => {
+    console.log('Chat stream ended.');
+
+    const modelMessage: Message = {
+      role: 'assistant',
+      content: outputValue.value,
+    };
+    setMessages(modelMessage);
+  });
 });
 
 const setUpOllama = async () => {
@@ -84,30 +114,24 @@ const closeErrorMessage = () => {
   showErrorMessage.value = false;
 };
 
-const sendMessage = async (
-  inputText: string,
-  onSuccessfullMessage: () => void
-) => {
+const sendMessage = async (inputText: string) => {
   if (!inputText) return;
   loading.value = true;
 
   if (outputValue.value) outputValue.value = '';
 
-  window.electronAPI.onChatStreamChunk((chunk: string) => {
-    if (!outputValue.value) {
-      loading.value = false;
-      onSuccessfullMessage();
-    }
+  const userMessage: Message = {
+    role: 'user',
+    content: inputText,
+  };
 
-    outputValue.value += chunk;
-  });
+  setMessages(userMessage);
 
-  window.electronAPI.onChatStreamEnd(() => {
-    console.log('Chat stream ended.');
-  });
+  const currentConversation = JSON.parse(JSON.stringify(getMessages()));
+  console.log('Messages being sent to backend:', currentConversation);
 
   try {
-    await window.electronAPI.startChatStream(inputText, getModel());
+    await window.electronAPI.startChatStream(currentConversation, getModel());
   } catch (error) {
     console.error('Error starting chat stream:', error);
     openErrorMessage('Error starting chat stream');

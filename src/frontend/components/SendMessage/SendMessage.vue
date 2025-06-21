@@ -7,14 +7,11 @@
       type="text"
       placeholder="ask anything"
       :value="inputText"
-      @input="(event) => (inputText = (event.target as HTMLInputElement).value)"
-      @keyup.enter="sendMessage(inputText, onSuccessfullMessage)"
+      @input="(event) => setInputText((event.target as HTMLInputElement).value)"
+      @keyup.enter="sendMessage(inputText)"
     />
 
-    <button
-      class="cursor-pointer"
-      @click="sendMessage(inputText, onSuccessfullMessage)"
-    >
+    <button class="cursor-pointer" @click="sendMessage(inputText)">
       <div v-if="loading">
         <LoaderCircle
           class="w-4 animate-spin stroke-gray-800 dark:stroke-gray-200"
@@ -28,16 +25,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
 import { SendHorizonal, LoaderCircle } from 'lucide-vue-next';
 
 interface Props {
   loading: boolean;
-  sendMessage: (inputText: string, onSuccessfullMessage: () => void) => void;
+  inputText: string;
+  sendMessage: (inputText: string) => Promise<void>;
+  setInputText: (inputText: string) => void;
 }
 
-const { sendMessage } = defineProps<Props>();
-const inputText = ref<string>('');
-
-const onSuccessfullMessage = () => (inputText.value = '');
+const { loading, inputText } = defineProps<Props>();
 </script>
