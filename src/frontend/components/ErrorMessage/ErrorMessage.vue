@@ -1,19 +1,17 @@
 <template>
   <Transition name="modal-bounce">
     <div
-      v-if="showError"
+      v-if="getError()"
       class="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/10"
-      @click.self="closeErrorMessage"
     >
       <div
-        v-if="errorMessage"
         class="relative mx-4 w-full max-w-sm rounded-lg bg-gray-900 p-6 shadow-xl"
       >
         <h2 class="text-2xl font-bold">Something went wrong</h2>
         <p class="my-4 text-sm font-light tracking-wide">
-          {{ errorMessage }}
+          {{ getError() }}
         </p>
-        <button class="cursor-pointer" @click="closeErrorMessage">
+        <button class="cursor-pointer" @click="clearError()">
           <XCircle class="absolute top-2 right-2" />
         </button>
       </div>
@@ -23,13 +21,9 @@
 
 <script setup lang="ts">
 import { XCircle } from 'lucide-vue-next';
-interface Props {
-  showError: boolean;
-  errorMessage: string;
-  closeErrorMessage: () => void;
-}
+import { useError } from '@composables/useError/useError';
 
-const { errorMessage, closeErrorMessage } = defineProps<Props>();
+const { getError, clearError } = useError();
 </script>
 
 <style>

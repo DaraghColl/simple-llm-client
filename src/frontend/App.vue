@@ -31,11 +31,8 @@
       :send-message="sendMessage"
     />
   </div>
-  <ErrorMessage
-    :show-error="showErrorMessage"
-    :error-message="errorMessage"
-    :close-error-message="closeErrorMessage"
-  />
+  <ErrorMessage />
+
   <Settings />
 </template>
 
@@ -54,12 +51,12 @@ import {
   updateLastMessageContent,
 } from '@state/chat';
 import { Message } from 'ollama';
+import { useError } from '@composables/useError/useError';
+const { setError } = useError();
 
 const inputText = ref<string>('');
 const generatingFirstResponse = ref<boolean>(false);
 const generatingCompleteResponse = ref<boolean>(false);
-const errorMessage = ref<string | null>(null);
-const showErrorMessage = ref<boolean>(false);
 const isOllamaConnected = ref<boolean>(true);
 const currentConversation = getMessages();
 
@@ -70,25 +67,39 @@ const setInputText = (value: string) => {
 onMounted(() => {
   setUpOllama();
 
-  window.electronAPI.onChatStreamChunk((chunk: string) => {
-    updateLastMessageContent(chunk);
-    generatingFirstResponse.value = false;
-  });
+  try {
+    window.electronAPI.onChatStreamChunk((chunk: string) => {
+      console.log('🚀 ~ window.electronAPI.onChatStreamChunk ~ chunk:', chunk);
+      if (chunk === 'Error: fetch failed') {
+        setError('fetch response failed');
+        generatingFirstResponse.value = false;
 
-  window.electronAPI.onChatStreamEnd(() => {
-    console.log('Chat stream ended.');
-    generatingCompleteResponse.value = false;
-    setInputText('');
-  });
+        return;
+      }
+      updateLastMessageContent(chunk);
+      generatingFirstResponse.value = false;
+    });
+  } catch {
+    setError('Error streaming chat messages');
+  }
+
+  try {
+    window.electronAPI.onChatStreamEnd(() => {
+      console.log('Chat stream ended.');
+      generatingCompleteResponse.value = false;
+      setInputText('');
+    });
+  } catch {
+    setError('Error with chat');
+  }
 });
 
 const setUpOllama = async () => {
   const isOllamaRunning = await window.electronAPI.checkIsOllamaRunning();
 
   if (!isOllamaRunning) {
-    openErrorMessage(
-      'Ollama is not running. Please start ollama to use this app.'
-    );
+    setError('Ollama is not running. Please start ollama to use this app.');
+
     isOllamaConnected.value = false;
     return;
   }
@@ -98,21 +109,15 @@ const setUpOllama = async () => {
 };
 
 const fetchModels = async () => {
-  const models = await window.electronAPI.fetchModels();
-  if (models) {
-    setModelList(models.models);
-    setModel(models.models[0].model);
+  try {
+    const models = await window.electronAPI.fetchModels();
+    if (models) {
+      setModelList(models.models);
+      setModel(models.models[0].model);
+    }
+  } catch {
+    setError('Error fetching model list');
   }
-};
-
-const openErrorMessage = (message: string) => {
-  errorMessage.value = message;
-  showErrorMessage.value = true;
-};
-
-const closeErrorMessage = () => {
-  errorMessage.value = null;
-  showErrorMessage.value = false;
 };
 
 const sendMessage = async (input: string) => {
@@ -121,7 +126,6 @@ const sendMessage = async (input: string) => {
   generatingCompleteResponse.value = true;
   inputText.value = '';
 
-  // Add the user message
   const userMessage: Message = {
     role: 'user',
     content: input,
@@ -147,8 +151,7 @@ const sendMessage = async (input: string) => {
       getModel()
     );
   } catch (error) {
-    console.error('Error starting chat stream:', error);
-    openErrorMessage('Error starting chat stream');
+    setError('Error starting chat');
     generatingFirstResponse.value = false;
     generatingCompleteResponse.value = false;
   }

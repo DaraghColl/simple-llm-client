@@ -135,9 +135,14 @@ ipcMain.handle(
   async (event, messages: Message[], model: string) => {
     const webContents = event.sender;
 
-    for await (const chunk of chat(messages, model)) {
-      webContents.send('chat-stream-chunk', chunk);
+    try {
+      for await (const chunk of chat(messages, model)) {
+        webContents.send('chat-stream-chunk', chunk);
+      }
+    } catch (err) {
+      webContents.send('chat-stream-chunk', err);
     }
+
     webContents.send('chat-stream-end');
   }
 );

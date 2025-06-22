@@ -14,6 +14,8 @@
     "paths": {
       "@components/*": ["./src/frontend/components/*"],
       "@state/*": ["./src/frontend/state/*"],
+      "@composables/*": ["./src/frontend/composables/*"],
+
       "@frontend/*": ["./src/frontend/*"],
       "@backend/*": ["./src/backend/*"]
     }
