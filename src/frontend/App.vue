@@ -2,13 +2,17 @@
   <div class="container mx-auto flex h-screen flex-col gap-4 p-4">
     <div id="output" class="relative h-full grow overflow-scroll">
       <div
-        v-if="currentConversation.length === 0 && !loading"
+        v-if="currentConversation.length === 0 && !generatingFirstResponse"
         class="flex h-full items-center justify-center"
       >
         <LandingImage theme="dark" />
       </div>
       <div v-else>
-        <Conversation :conversation="currentConversation" />
+        <Conversation
+          :conversation="currentConversation"
+          :generating-first-response="generatingFirstResponse"
+          :generating-complete-response="generatingCompleteResponse"
+        />
       </div>
     </div>
     <button
@@ -21,7 +25,7 @@
       retry connection
     </button>
     <SendMessage
-      :loading="loading"
+      :generating-complete-response="generatingCompleteResponse"
       :input-text="inputText"
       :set-input-text="setInputText"
       :send-message="sendMessage"
@@ -52,7 +56,8 @@ import {
 import { Message } from 'ollama';
 
 const inputText = ref<string>('');
-const loading = ref<boolean>(false);
+const generatingFirstResponse = ref<boolean>(false);
+const generatingCompleteResponse = ref<boolean>(false);
 const errorMessage = ref<string | null>(null);
 const showErrorMessage = ref<boolean>(false);
 const isOllamaConnected = ref<boolean>(true);
@@ -67,11 +72,12 @@ onMounted(() => {
 
   window.electronAPI.onChatStreamChunk((chunk: string) => {
     updateLastMessageContent(chunk);
+    generatingFirstResponse.value = false;
   });
 
   window.electronAPI.onChatStreamEnd(() => {
     console.log('Chat stream ended.');
-    loading.value = false;
+    generatingCompleteResponse.value = false;
     setInputText('');
   });
 });
@@ -111,7 +117,8 @@ const closeErrorMessage = () => {
 
 const sendMessage = async (input: string) => {
   if (!input) return;
-  loading.value = true;
+  generatingFirstResponse.value = true;
+  generatingCompleteResponse.value = true;
   inputText.value = '';
 
   // Add the user message
@@ -142,7 +149,8 @@ const sendMessage = async (input: string) => {
   } catch (error) {
     console.error('Error starting chat stream:', error);
     openErrorMessage('Error starting chat stream');
-    loading.value = false;
+    generatingFirstResponse.value = false;
+    generatingCompleteResponse.value = false;
   }
 };
 </script>

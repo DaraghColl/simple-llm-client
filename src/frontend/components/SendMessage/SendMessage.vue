@@ -12,7 +12,7 @@
     />
 
     <button class="cursor-pointer" @click="sendMessage(inputText)">
-      <div v-if="loading">
+      <div v-if="generatingCompleteResponse">
         <LoaderCircle
           class="w-4 animate-spin stroke-gray-800 dark:stroke-gray-200"
         />
@@ -28,11 +28,11 @@
 import { SendHorizonal, LoaderCircle } from 'lucide-vue-next';
 
 interface Props {
-  loading: boolean;
+  generatingCompleteResponse: boolean;
   inputText: string;
   sendMessage: (inputText: string) => Promise<void>;
   setInputText: (inputText: string) => void;
 }
 
-const { loading, inputText } = defineProps<Props>();
+const { generatingCompleteResponse, inputText } = defineProps<Props>();
 </script>
