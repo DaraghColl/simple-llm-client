@@ -110,7 +110,7 @@ const addCopyButtons = () => {
       const copyCodeButton = document.createElement('button');
       copyCodeButton.innerText = 'copy code';
       copyCodeButton.className =
-        'absolute top-5 right-5 cursor-pointer bg-gray-900 hover:bg-gray-900 p-2';
+        'absolute top-5 right-[.8rem] cursor-pointer bg-gray-900 hover:bg-gray-950 p-2';
       copyCodeButton.addEventListener('click', () =>
         copyCode(codeBlock.innerText)
       );
