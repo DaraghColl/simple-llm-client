@@ -1,6 +1,6 @@
 <template>
   <div class="container mx-auto flex h-screen flex-col gap-4 p-4">
-    <div id="output" class="relative h-full grow overflow-scroll">
+    <div id="output" class="no-scrollbar relative h-full grow overflow-scroll">
       <div
         v-if="currentConversation.length === 0 && !generatingFirstResponse"
         class="flex h-full items-center justify-center"
