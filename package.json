@@ -48,8 +48,10 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.10",
     "electron-squirrel-startup": "^1.0.1",
+    "highlight.js": "^11.11.1",
     "lucide-vue-next": "^0.516.0",
     "marked": "^15.0.12",
+    "marked-highlight": "^2.2.1",
     "ollama": "^0.5.16",
     "tailwindcss": "^4.1.10",
     "vue": "^3.5.16"
