@@ -27,7 +27,6 @@ const chat = async function* (
     });
 
     for await (const chunk of responseStream) {
-      // console.log('🚀 ~ forawait ~ chunk:', chunk);
       if (chunk.message.content) {
         yield chunk.message.content;
       }
